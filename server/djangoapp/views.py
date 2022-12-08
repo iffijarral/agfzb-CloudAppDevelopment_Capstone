@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
-# from .restapis import related methods
+from .models import *
+from .restapis import *
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -86,9 +86,41 @@ def registration_request(request):
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
+        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/get-dealership"
+        # Get dealers from the URL
+        dealerships = get_dealers_from_cf(url)
+        # Concat all dealer's short name
+        #dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        context['dealerships'] = dealerships
         return render(request, 'djangoapp/index.html', context)
 
+def get_dealers_from_cf(url, **kwargs):
+    results = []
+    # Call get_request (function resides in restapis.py) with a URL parameter
+    json_result = get_request(url)
+    if json_result:        
+        # Get the row list in JSON as dealers
+        dealers = json_result["rows"]        
+        # For each dealer object
+        for dealer in dealers:
+            # Get its content in `doc` object
+            dealer_doc = dealer["doc"]
+            # Create a CarDealer object with values in `doc` object
+            dealer_obj = CarDealer(
+                id=dealer_doc["id"],
+                city=dealer_doc["city"],
+                state = dealer_doc["state"],
+                st=dealer_doc["st"],
+                address=dealer_doc["address"],
+                zip=dealer_doc["zip"],
+                lat=dealer_doc["lat"],                
+                long=dealer_doc["long"],
+                short_name=dealer_doc["short_name"],
+                full_name=dealer_doc["full_name"]
+            )                                                
+            results.append(dealer_obj)
 
+    return results
 # Create a `get_dealer_details` view to render the reviews of a dealer
 # def get_dealer_details(request, dealer_id):
 # ...
