@@ -8,12 +8,13 @@ from requests.auth import HTTPBasicAuth
 def get_request(url, **kwargs):
     print(kwargs)
     print("GET from {}".format(url))
+    
     try:
         response = requests.get(
             url, 
             params=kwargs, 
             headers={'Content-Type': 'application/json'},
-            #auth=HTTPBasicAuth('apikey', api_key)
+            auth=HTTPBasicAuth('apikey', api_key)
         )
     except:
         print("Network exception occured")
@@ -82,7 +83,7 @@ def get_dealer_by_state(url, st):
 
 
 # Create a get_dealer_reviews_from_cf method to get reviews by dealer id from a cloud function
-def get_dealer_by_id_from_cf(url, dealerId):
+def get_dealer_reviews_from_cf(url, dealerId):
     results = []
     # Call get_request (function resides in restapis.py) with a URL parameter
     json_result = get_request(url, dealerId=dealerId)
@@ -101,7 +102,8 @@ def get_dealer_by_id_from_cf(url, dealerId):
                 name=review["name"],
                 purchase=bool(review["purchase"]),
                 purchase_date=review["purchase_date"],
-                review=review["review"],                
+                review=review["review"],
+                sentiment = "Good"               
             )                                                
             results.append(dealer_review_obj)
 
