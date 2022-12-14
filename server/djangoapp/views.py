@@ -106,6 +106,24 @@ def get_dealer_details(request, dealer_id):
 
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_review(request, dealer_id):
+    context = {}
+    url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/post-review"    
+    if request.user.is_authenticated:
+        review = dict()
+        review['name'] = "Iftikhar Ahmed"
+        review['dealership'] = dealer_id
+        review['review'] = "Very nice"
+        review['purchase'] = True
+        review['purchase_date'] = "12/12/2022"
+        review['car_make'] = "Toyota"
+        review['car_model'] = "Ayego"
+        review['car_year'] = 2010
+        post_result = post_request(url, review, dealerId=dealer_id)
+        context['post_result'] = post_result
+        return render(request, 'djangoapp/add_review.html', context)
+    else:
+        return HttpResponse("You are not logged in", status=400)
+        
+
 
