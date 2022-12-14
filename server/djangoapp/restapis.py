@@ -8,14 +8,24 @@ from requests.auth import HTTPBasicAuth
 def get_request(url, **kwargs):
     print(kwargs)
     print("GET from {}".format(url))
-    
+    api_key = kwargs.get("api_key")
     try:
-        response = requests.get(
-            url, 
-            params=kwargs, 
-            headers={'Content-Type': 'application/json'},
-            auth=HTTPBasicAuth('apikey', api_key)
-        )
+        if api_key:
+            # Get with Authentication
+            response = requests.get(
+                url, 
+                params=kwargs, 
+                headers={'Content-Type': 'application/json'},
+                auth=HTTPBasicAuth('apikey', api_key)
+            )
+        else:
+            # Get without Authentication
+            response = requests.get(
+                url, 
+                params=kwargs, 
+                headers={'Content-Type': 'application/json'},
+                #auth=HTTPBasicAuth('apikey', api_key)
+            )
     except:
         print("Network exception occured")
     status_code = response.status_code
@@ -103,18 +113,49 @@ def get_dealer_reviews_from_cf(url, dealerId):
                 purchase=bool(review["purchase"]),
                 purchase_date=review["purchase_date"],
                 review=review["review"],
-                sentiment = "Good"               
-            )                                                
+                sentiment = ""               
+            )   
+            print(dealer_review_obj.review)
+            sentiment = analyze_review_sentiments(dealer_review_obj.review)
+            if sentiment["entities"]:
+                print(sentiment["entities"][0]["sentiment"]["label"]) 
             results.append(dealer_review_obj)
-
+ 
     return results
 # - Call get_request() with specified arguments
 # - Parse JSON results into a DealerView object list
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
-# def analyze_review_sentiments(text):
-# - Call get_request() with specified arguments
+def analyze_review_sentiments(text):
+    from ibm_watson.natural_language_understanding_v1 import Features, EntitiesOptions, KeywordsOptions
+
+    nlu_instance = get_NLU_instance()
+    analyse_result = nlu_instance.analyze(
+        text=text,
+        features=Features(
+            entities=EntitiesOptions(emotion=True, sentiment=True, limit=2)
+        )
+    ).get_result()
+
+    print(analyse_result)
+    return analyse_result
+
+def get_NLU_instance():
+    from ibm_watson import NaturalLanguageUnderstandingV1
+    from ibm_cloud_sdk_core.authenticators import IAMAuthenticator    
+
+    api_key = "4LbDfkHy7-K7a8Pv_Uk7w8_BYxWvVJPc86XfrOjPYr4r"
+    url = "https://api.eu-de.natural-language-understanding.watson.cloud.ibm.com/instances/8f1bd032-307a-4282-879d-c0b0d84ef67b"
+
+    authenticator = IAMAuthenticator(api_key)
+    natural_language_understanding = NaturalLanguageUnderstandingV1(
+        version='2022-12-14',
+        authenticator=authenticator
+    )
+
+    natural_language_understanding.set_service_url(url)
+    return natural_language_understanding
 # - Get the returned sentiment label such as Positive or Negative
 
 

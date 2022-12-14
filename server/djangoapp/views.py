@@ -88,8 +88,8 @@ def get_dealerships(request):
     if request.method == "GET":
         url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/get-dealership"
         # Get dealers from the URL
-        #dealerships = get_dealers_from_cf(url)
-        dealerships = get_dealer_by_state(url, st="TX")
+        dealerships = get_dealers_from_cf(url)
+        #dealerships = get_dealer_by_state(url, st="TX")
         # Concat all dealer's short name
         #dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         context['dealerships'] = dealerships
