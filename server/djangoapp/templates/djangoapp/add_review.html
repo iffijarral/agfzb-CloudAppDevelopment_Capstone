@@ -12,6 +12,13 @@
 </head>
     <body>        
         <!--Add review form here -->
-        <h2>{{post_result}}</h2>
+        {% if post_result.data.ok %}
+            <h2>Review saved successfully</h2>
+        {% else %}
+            <h2>Review could not be saved </h2>
+        {% endif %}
+        <div class="container">
+            
+        </div>
     </body>
 </html>
