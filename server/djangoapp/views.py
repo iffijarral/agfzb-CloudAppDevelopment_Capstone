@@ -97,33 +97,38 @@ def get_dealerships(request):
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
-    context = {}
+    context = {}    
     if request.method == 'GET':
         url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/get-review"
         reviews = get_dealer_reviews_from_cf(url, dealerId=dealer_id)
         context['reviews'] = reviews
+        context['dealer_id'] = dealer_id
         return render(request, 'djangoapp/dealer_details.html', context)
 
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
     context = {}
-    url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/post-review"
-    if request.user.is_authenticated:
-        review = dict()
-        review['name'] = "Iftikhar Ahmed"
-        review['dealership'] = dealer_id
-        review['review'] = "Very nice"
-        review['purchase'] = True
-        review['purchase_date'] = "12/12/2022"
-        review['car_make'] = "Toyota"
-        review['car_model'] = "Ayego"
-        review['car_year'] = 2010
-        post_result = post_request(url, review, dealerId=dealer_id)
-        context['post_result'] = post_result
+    if request.method == 'GET':
+        context['dealerId'] = dealer_id
         return render(request, 'djangoapp/add_review.html', context)
-    else: 
-        return HttpResponse("You are not logged in", status=400)
+    else:
+        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/post-review"
+        if request.user.is_authenticated:
+            review = dict()
+            review['name'] = "Iftikhar Ahmed"
+            review['dealership'] = dealer_id
+            review['review'] = "Very nice"
+            review['purchase'] = True
+            review['purchase_date'] = "12/12/2022"
+            review['car_make'] = "Toyota"
+            review['car_model'] = "Ayego"
+            review['car_year'] = 2010
+            post_result = post_request(url, review, dealerId=dealer_id)
+            context['post_result'] = post_result
+            return render(request, 'djangoapp/add_review.html', context)
+        else: 
+            return HttpResponse("You are not logged in", status=400)
         
 
 
