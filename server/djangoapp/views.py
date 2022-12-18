@@ -7,6 +7,8 @@ from .restapis import *
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
+from django.utils.formats import get_format
+from django.utils.dateformat import DateFormat
 import logging
 import json
 
@@ -110,25 +112,38 @@ def get_dealer_details(request, dealer_id):
 def add_review(request, dealer_id):
     context = {}
     if request.method == 'GET':
+        cars = CarModel.objects.all()
         context['dealerId'] = dealer_id
+        context['cars'] = cars
         return render(request, 'djangoapp/add_review.html', context)
-    else:
+    elif request.method == 'POST':    
+        name = request.POST['name']
+        purchasecheck = bool(request.POST.get('purchasecheck', False))                    
+        car_id = request.POST['car']
+        purchase_date = request.POST['purchasedate']
+        purchase_date = datetime.strptime(purchase_date, '%Y-%m-%dT%H:%M')
+        purchase_date = purchase_date.strftime('%d/%m/%Y')
+        #iso_format = datetime.utcnow().isoformat()
+        reviews = request.POST['content']
+        car = CarModel.objects.get(id = car_id)                
         url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/post-review"
         if request.user.is_authenticated:
             review = dict()
-            review['name'] = "Iftikhar Ahmed"
+            review['name'] = name
             review['dealership'] = dealer_id
-            review['review'] = "Very nice"
-            review['purchase'] = True
-            review['purchase_date'] = "12/12/2022"
-            review['car_make'] = "Toyota"
-            review['car_model'] = "Ayego"
-            review['car_year'] = 2010
+            review['review'] = reviews
+            review['purchase'] = purchasecheck
+            review['purchase_date'] = purchase_date
+            review['car_make'] = car.make.name
+            review['car_model'] = car.name
+            review['car_year'] = car.year.strftime("%Y")
             post_result = post_request(url, review, dealerId=dealer_id)
             context['post_result'] = post_result
+            context['dealerId'] = dealer_id
             return render(request, 'djangoapp/add_review.html', context)
         else: 
             return HttpResponse("You are not logged in", status=400)
+        
         
 
 
