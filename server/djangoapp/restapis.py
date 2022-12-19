@@ -120,11 +120,9 @@ def get_dealer_reviews_from_cf(url, dealerId):
                 purchase_date=review["purchase_date"],
                 review=review["review"],
                 sentiment = ""               
-            )   
-            print(dealer_review_obj.review)
-            sentiment = analyze_review_sentiments(dealer_review_obj.review)
-            if sentiment["entities"]:
-                print(sentiment["entities"][0]["sentiment"]["label"]) 
+            )               
+            sentiment = analyze_review_sentiments(dealer_review_obj.review)            
+            dealer_review_obj.sentiment = sentiment
             results.append(dealer_review_obj)
  
     return results
@@ -134,18 +132,18 @@ def get_dealer_reviews_from_cf(url, dealerId):
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 def analyze_review_sentiments(text):
-    from ibm_watson.natural_language_understanding_v1 import Features, EntitiesOptions, KeywordsOptions
+    from ibm_watson.natural_language_understanding_v1 \
+    import Features, SentimentOptions
 
     nlu_instance = get_NLU_instance()
     analyse_result = nlu_instance.analyze(
         text=text,
-        features=Features(
-            entities=EntitiesOptions(emotion=True, sentiment=True, limit=2)
-        )
-    ).get_result()
+        features=Features(sentiment=SentimentOptions(targets=[text]))
+    ).get_result()   
+    
+    sentiment = analyse_result['sentiment']['document']['label']
 
-    print(analyse_result)
-    return analyse_result
+    return sentiment
 
 def get_NLU_instance():
     from ibm_watson import NaturalLanguageUnderstandingV1

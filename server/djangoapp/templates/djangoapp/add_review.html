@@ -42,37 +42,37 @@
         <!--Add review form here -->
         
         <div class="container mt-5">
-            <form action="{% url 'djangoapp:add_review' dealer_id=dealerId %}" method="post" >                                
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input class="date-own form-control" type="text" name="name" id="name">
-                </div>
-                <div class="">                    
-                    <label for="purchasedate">Purchased before ? </label>
-                    <input type="checkbox" data-toggle="switch" {{ form.instance.hot|yesno:"checked,'',''" }} name="purchasecheck" id="purchasecheck" value="true">
-                    <select name="car" id="car" class="form-select" required>
-                        {% for car in cars %}
-                            <option selected value={{car.id}}>{{car.name}}-{{car.make.name}}-{{ car.year|date:"Y" }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="purchasedate">Purchase Date</label>
-                    <input class="date-own form-control" type="datetime-local" name="purchasedate" id="purchasedate">
-                </div>
-                <div class="form-group">
-                    <label for="content">Your Comments</label>
-                    <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
-                </div>
-                <button class="btn btn-primary" type="submit">Submit</button>                
-            </form>
-            {% if post_result %}
-                {% if post_result.data.ok %}
-                    <h2>Review saved successfully</h2>
-                {% else %}
-                    <h2>Review could not be saved </h2>
+            {% if user.is_authenticated %}
+                <form action="{% url 'djangoapp:add_review' dealer_id=dealerId %}" method="post" >                                
+                    {% csrf_token %}                
+                    <div class="">                    
+                        <label for="purchasedate">Purchased before ? </label>
+                        <input type="checkbox" data-toggle="switch" {{ form.instance.hot|yesno:"checked,'',''" }} name="purchasecheck" id="purchasecheck" value="true">
+                        <select name="car" id="car" class="form-select" required>
+                            {% for car in cars %}
+                                <option selected value={{car.id}}>{{car.name}}-{{car.make.name}}-{{ car.year|date:"Y" }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchasedate">Purchase Date</label>
+                        <input class="date-own form-control" type="datetime-local" name="purchasedate" id="purchasedate">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Your Comments</label>
+                        <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Submit</button>                
+                </form>
+                {% if post_result %}
+                    {% if post_result.data.ok %}
+                        <h2>Review saved successfully</h2>
+                    {% else %}
+                        <h2>Review could not be saved </h2>
+                    {% endif %}
                 {% endif %}
+                {% else %}
+                    <h2 text-align="center"> Please login to post a review </h2>
             {% endif %}
         </div>        
     </body>    

@@ -111,25 +111,25 @@ def get_dealer_details(request, dealer_id):
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
     context = {}
-    if request.method == 'GET':
-        cars = CarModel.objects.all()
+    cars = CarModel.objects.all()
+    if request.method == 'GET':        
         context['dealerId'] = dealer_id
         context['cars'] = cars
         return render(request, 'djangoapp/add_review.html', context)
-    elif request.method == 'POST':    
-        name = request.POST['name']
-        purchasecheck = bool(request.POST.get('purchasecheck', False))                    
-        car_id = request.POST['car']
-        purchase_date = request.POST['purchasedate']
-        purchase_date = datetime.strptime(purchase_date, '%Y-%m-%dT%H:%M')
-        purchase_date = purchase_date.strftime('%d/%m/%Y')
-        #iso_format = datetime.utcnow().isoformat()
-        reviews = request.POST['content']
-        car = CarModel.objects.get(id = car_id)                
-        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/post-review"
+    elif request.method == 'POST':         
         if request.user.is_authenticated:
+            purchasecheck = bool(request.POST.get('purchasecheck', False))
+            car_id = request.POST['car']
+            purchase_date = request.POST['purchasedate']
+            purchase_date = datetime.strptime(purchase_date, '%Y-%m-%dT%H:%M')
+            purchase_date = purchase_date.strftime('%d/%m/%Y')
+            #iso_format = datetime.utcnow().isoformat()
+            reviews = request.POST['content']
+            car = CarModel.objects.get(pk = car_id)                
+            url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/post-review"
             review = dict()
-            review['name'] = name
+            review["id"] = dealer_id
+            review['name'] = request.user.username
             review['dealership'] = dealer_id
             review['review'] = reviews
             review['purchase'] = purchasecheck
@@ -140,9 +140,9 @@ def add_review(request, dealer_id):
             post_result = post_request(url, review, dealerId=dealer_id)
             context['post_result'] = post_result
             context['dealerId'] = dealer_id
-            return render(request, 'djangoapp/add_review.html', context)
-        else: 
-            return HttpResponse("You are not logged in", status=400)
+            context['cars'] = cars
+        return render(request, 'djangoapp/add_review.html', context)
+        
         
         
 
