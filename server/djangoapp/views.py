@@ -101,8 +101,8 @@ def get_dealerships(request):
 def get_dealer_details(request, dealer_id):
     context = {}    
     if request.method == 'GET':
-        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/get-review"
-        reviews = get_dealer_reviews_from_cf(url, dealerId=dealer_id)
+        url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/get-review"        
+        reviews = get_dealer_reviews_from_cf(url, dealerId=dealer_id)        
         context['reviews'] = reviews
         context['dealer_id'] = dealer_id
         return render(request, 'djangoapp/dealer_details.html', context)
@@ -110,9 +110,11 @@ def get_dealer_details(request, dealer_id):
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
+    url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/get-dealership"
     context = {}
     cars = CarModel.objects.all()
-    if request.method == 'GET':        
+    if request.method == 'GET':
+        context['dealer'] = get_dealer_by_id(url, dealer_id=dealer_id)
         context['dealerId'] = dealer_id
         context['cars'] = cars
         return render(request, 'djangoapp/add_review.html', context)
@@ -129,7 +131,7 @@ def add_review(request, dealer_id):
             url = "https://eu-de.functions.appdomain.cloud/api/v1/web/DK-Student_mySpace/dealership-package/post-review"
             review = dict()
             review["id"] = dealer_id
-            review['name'] = request.user.username
+            review['name'] = request.user.first_name
             review['dealership'] = dealer_id
             review['review'] = reviews
             review['purchase'] = purchasecheck

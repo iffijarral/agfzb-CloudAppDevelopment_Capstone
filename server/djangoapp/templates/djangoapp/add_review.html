@@ -43,11 +43,19 @@
         
         <div class="container mt-5">
             {% if user.is_authenticated %}
+                <h2>Add a review about {{dealer.short_name}} </h2>
                 <form action="{% url 'djangoapp:add_review' dealer_id=dealerId %}" method="post" >                                
-                    {% csrf_token %}                
-                    <div class="">                    
-                        <label for="purchasedate">Purchased before ? </label>
+                    {% csrf_token %}  
+                    <div class="form-group">
+                        <label for="content">Enter the review content</label>
+                        <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
+                    </div>              
+                    <div class="">
                         <input type="checkbox" data-toggle="switch" {{ form.instance.hot|yesno:"checked,'',''" }} name="purchasecheck" id="purchasecheck" value="true">
+                        <label class="ml-1" for="purchasedate">Has purchased the car from {{dealer.short_name}} before ? </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="ml-1" for="car">Select your car (model-make-year) </label>
                         <select name="car" id="car" class="form-select" required>
                             {% for car in cars %}
                                 <option selected value={{car.id}}>{{car.name}}-{{car.make.name}}-{{ car.year|date:"Y" }}</option>
@@ -55,13 +63,10 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="purchasedate">Purchase Date</label>
+                        <label for="purchasedate">Select Your Purchase Date</label>
                         <input class="date-own form-control" type="datetime-local" name="purchasedate" id="purchasedate">
                     </div>
-                    <div class="form-group">
-                        <label for="content">Your Comments</label>
-                        <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
-                    </div>
+                    
                     <button class="btn btn-primary" type="submit">Submit</button>                
                 </form>
                 {% if post_result %}

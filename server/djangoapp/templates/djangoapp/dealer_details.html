@@ -43,7 +43,7 @@
         <!-- Add reviews as cards -->
         <div class="container mt-5"> 
             <div class="card-columns">
-            {% if reviews %}
+            {% if reviews %}  
                 {% for review in reviews %}
                     <div class="card">
                         <img class="card-img-left" src="{{MEDIA_URL}}/emoji/{{review.sentiment}}.png" alt="Card image cap">

@@ -74,10 +74,27 @@ def get_dealers_from_cf(url, **kwargs):
 
     return results
 
-# - Call get_request() with specified arguments
+def get_dealer_by_id(url, dealer_id):    
+    results = []        
+    json_result = get_request(url, dealer_id=dealer_id)    
+    if json_result:
+        dealer_obj = CarDealer(
+                id=json_result[0]["id"],
+                city=json_result[0]["city"],
+                state = json_result[0]["state"],
+                st=json_result[0]["st"],
+                address=json_result[0]["address"],
+                zip=json_result[0]["zip"],
+                lat=json_result[0]["lat"],                
+                long=json_result[0]["long"],
+                short_name=json_result[0]["short_name"],
+                full_name=json_result[0]["full_name"]
+            )
+        results.append(dealer_obj)             
+    return results[0]
+
 def get_dealer_by_state(url, st):
-    results = []    
-    # Call get_request (function resides in restapis.py) with a URL parameter
+    results = []        
     json_result = get_request(url, st=st)    
     if json_result:
         dealer_obj = CarDealer(
